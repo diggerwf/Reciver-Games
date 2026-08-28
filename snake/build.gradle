@@ -14,6 +14,9 @@ repositories {
 }
 
 ext {
+    // LWJGL 3.3.6 - latest stable with arm64 natives
+    // GLFW in natives may not have DRM support
+    // We prefer system GLFW (libglfw3) via -Dorg.lwjgl.glfw.libname=glfw
     lwjglVersion = '3.3.6'
 }
 
@@ -24,8 +27,9 @@ dependencies {
     implementation "org.lwjgl:lwjgl-opengles:${lwjglVersion}"
     implementation "org.lwjgl:lwjgl-egl:${lwjglVersion}"
 
-    // Natives for ARM64 (Pi 4/5) - use platform dependency
+    // Natives for ARM64 (Pi 4/5)
     // Note: lwjgl-egl natives not available for arm64 on maven central
+    // We prefer system GLFW (libglfw3) via -Dorg.lwjgl.glfw.libname=glfw
     runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-opengles:${lwjglVersion}:natives-linux-arm64"
@@ -34,6 +38,8 @@ dependencies {
 application {
     mainClass = 'SnakeMain'
     applicationDefaultJvmArgs = [
+        // Prefer system GLFW (libglfw3) which may have DRM support
+        // If not available, falls back to LWJGL natives
         '-Dorg.lwjgl.glfw.libname=glfw',
         '-Dorg.lwjgl.system.allocator=system',
         '-Xmx256m'

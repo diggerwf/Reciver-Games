@@ -20,6 +20,7 @@ public class SnakeMain {
 
     public static void main(String[] args) {
         // GLFW ERROR CALLBACK ZUERST - vor glfwInit()!
+        // Zeigt konkreten Grund bei GLFW_PLATFORM_UNAVAILABLE etc.
         GLFWErrorCallback.createPrint(System.err).set();
         
         new SnakeMain().run();
@@ -45,6 +46,15 @@ public class SnakeMain {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
         
+        // DRM/GBM Platform Hint (GLFW 3.4+)
+        // GLFW_PLATFORM_DRM = 0x00020001
+        // Wird ignoriert wenn GLFW < 3.4 oder nicht kompiliert
+        try {
+            glfwWindowHint(0x00020001, 0x00020001); // GLFW_PLATFORM, GLFW_PLATFORM_DRM
+        } catch (Exception ignored) {
+            // GLFW < 3.4 oder Konstante nicht verfügbar
+        }
+
         // Window hints für DRM/KMS Fullscreen
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
