@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'snake'
+version = '1.0'
+
+mainClassName = 'SnakeMain'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+}
+
+ext {
+    lwjglVersion = '3.3.6'
+}
+
+dependencies {
+    // LWJGL core
+    implementation "org.lwjgl:lwjgl:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-opengles:${lwjglVersion}"
+    implementation "org.lwjgl:lwjgl-egl:${lwjglVersion}"
+
+    // Natives for ARM64 (Pi 4/5) - use platform dependency
+    runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
+    runtimeOnly "org.lwjgl:lwjgl-opengles:${lwjglVersion}:natives-linux-arm64"
+}
+
+application {
+    mainClass = 'SnakeMain'
+    applicationDefaultJvmArgs = [
+        '-Dorg.lwjgl.glfw.libname=glfw',
+        '-Dorg.lwjgl.system.allocator=system',
+        '-Xmx256m'
+    ]
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes(
+            'Main-Class': 'SnakeMain',
+            'Class-Path': configurations.runtimeClasspath.files.collect { "lib/$it.name" }.join(' ')
+        )
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'SnakeMain'
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
+
+build.dependsOn fatJar

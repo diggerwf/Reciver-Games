@@ -1,0 +1,27 @@
+# Gradle
+.gradle/
+build/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Java compiled classes (keep only source)
+*.class
+
+# JARs (keep only release artifacts in releases/)
+*.jar
+!snake.jar
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+META-INF/

@@ -1,0 +1,27 @@
+[Unit]
+Description=Snake Game (DRM/KMS via LWJGL3)
+After=multi-user.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=diggerwf
+Group=video
+SupplementaryGroups=render video
+WorkingDirectory=/home/diggerwf/snake
+ExecStart=/home/diggerwf/snake/snake.sh
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# DRM/KMS access
+Environment=DISPLAY=
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=LIBGL_DRI3_DISABLE=1
+
+# Java options
+Environment=JAVA_OPTS="-Dorg.lwjgl.glfw.libname=glfw -Dorg.lwjgl.system.allocator=system -Xmx256m"
+
+[Install]
+WantedBy=default.target
