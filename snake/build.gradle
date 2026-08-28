@@ -25,6 +25,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-egl:${lwjglVersion}"
 
     // Natives for ARM64 (Pi 4/5) - use platform dependency
+    // Note: lwjgl-egl natives not available for arm64 on maven central
     runtimeOnly "org.lwjgl:lwjgl:${lwjglVersion}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-glfw:${lwjglVersion}:natives-linux-arm64"
     runtimeOnly "org.lwjgl:lwjgl-opengles:${lwjglVersion}:natives-linux-arm64"

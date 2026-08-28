@@ -19,6 +19,9 @@ public class SnakeMain {
     private static final double TARGET_TIME = 1.0 / TARGET_FPS;
 
     public static void main(String[] args) {
+        // GLFW ERROR CALLBACK ZUERST - vor glfwInit()!
+        GLFWErrorCallback.createPrint(System.err).set();
+        
         new SnakeMain().run();
     }
 
@@ -31,16 +34,25 @@ public class SnakeMain {
     }
 
     private void initGLFW() {
-        if (!glfwInit()) throw new IllegalStateException("GLFW init failed");
+        if (!glfwInit()) {
+            throw new IllegalStateException("GLFW init failed - check stderr for GLFW error details");
+        }
 
         glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-        glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
-        glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+        
+        // OpenGL ES 2.0 Context für DRM/GBM
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        
+        // Window hints für DRM/KMS Fullscreen
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+        glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
+        glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+
+        // Farb-Bits
         glfwWindowHint(GLFW_RED_BITS, 8);
         glfwWindowHint(GLFW_GREEN_BITS, 8);
         glfwWindowHint(GLFW_BLUE_BITS, 8);
@@ -48,14 +60,30 @@ public class SnakeMain {
         glfwWindowHint(GLFW_DEPTH_BITS, 0);
         glfwWindowHint(GLFW_STENCIL_BITS, 0);
         glfwWindowHint(GLFW_SAMPLES, 0);
-        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
 
         GLFWVidMode vid = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        if (vid == null) {
+            throw new IllegalStateException("No primary monitor found - DRM connector issue?");
+        }
         int width = vid.width();
         int height = vid.height();
 
+        // Fullscreen auf Primary Monitor (DRM Connector HDMI-A-1)
+        // WICHTIG: monitor != NULL für Fullscreen auf DRM
         window = glfwCreateWindow(width, height, "Snake", glfwGetPrimaryMonitor(), NULL);
-        if (window == NULL) throw new IllegalStateException("Window creation failed");
+        
+        // Fallback: Windowed maximized wenn Fullscreen fehlschlägt
+        if (window == NULL) {
+            System.err.println("Fullscreen failed, trying windowed maximized...");
+            glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
+            glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+            glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+            window = glfwCreateWindow(width, height, "Snake", NULL, NULL);
+        }
+        
+        if (window == NULL) {
+            throw new IllegalStateException("Window creation failed - check GLFW error log above");
+        }
 
         glfwSetKeyCallback(window, (w, key, scancode, action, mods) -> {
             if (input != null) input.keyCallback(key, action);
@@ -64,6 +92,8 @@ public class SnakeMain {
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
         glfwShowWindow(window);
+        
+        System.err.println("GLFW init OK: " + width + "x" + height + " @ " + vid.refreshRate() + "Hz");
     }
 
     private void initGLES() {
