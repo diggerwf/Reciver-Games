@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Main-Class: SnakeMain
-Class-Path: lib/lwjgl-glfw-3.3.6.jar lib/lwjgl-glfw-3.3.6-natives-linux-
- arm64.jar lib/lwjgl-opengles-3.3.6.jar lib/lwjgl-opengles-3.3.6-natives
- -linux-arm64.jar lib/lwjgl-egl-3.3.6.jar lib/lwjgl-3.3.6.jar lib/lwjgl-
- 3.3.6-natives-linux-arm64.jar
-
